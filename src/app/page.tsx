@@ -1,95 +1,85 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import { Container, Typography, Grid, Box, Skeleton } from "@mui/material";
+import { Search } from "@mui/icons-material";
+
+import { AddCityDialog } from "../components/AddCityDialog";
+import { Input } from "@/components/ui/Input";
+import { CityCard } from "@/components/CityCard";
+
+import { useCities } from "@/hooks/useCities";
+
+import styles from "./page.module.scss";
+
+const renderSkeletons = Array.from({ length: 6 }).map((_, index) => (
+  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+    <Skeleton variant="rectangular" sx={{ borderRadius: 2, height: 200 }} />
+  </Grid>
+));
+
+export default function HomePage() {
+  const { cities, addCity, deleteCity, refreshCity, loadingCityId, isLoadingInitial } = useCities();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleFindCity = (query: string) => setSearchQuery(query);
+
+  const filteredCities = cities.filter((city) =>
+    city.name.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  const renderCities = filteredCities.map((city, index) => (
+    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={city.id}>
+      <CityCard
+        city={city}
+        onDelete={deleteCity}
+        onRefresh={refreshCity}
+        isLoading={city.id === loadingCityId}
+        index={index}
+      />
+    </Grid>
+  ));
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <Container component="section" maxWidth="md" className={styles.container}>
+      <Box className={styles.dashboardBlock}>
+        <Box component="header" mb={4}>
+          <Grid
+            container
+            alignItems="center"
+            justifyContent="space-between"
+            columnGap={2}
+            className={styles.header}
+          >
+            <Typography variant="h4" fontWeight={600} gutterBottom>
+              Weather App
+            </Typography>
+            <Box className={styles.addButton}>
+              <AddCityDialog onAdd={addCity} />
+            </Box>
+          </Grid>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <Input
+            onChange={(e) => handleFindCity(e.target.value)}
+            size="large"
+            startAdornment={<Search />}
+            placeholder="Search..."
+            fullWidth
           />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        </Box>
+
+        <Grid container spacing={3}>
+          {isLoadingInitial ? renderSkeletons : renderCities}
+
+          {!isLoadingInitial && filteredCities.length === 0 && (
+            <Grid size={{ xs: 12 }}>
+              <Typography variant="body1" color="text.secondary" align="center">
+                Cities not found 😢
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
+      </Box>
+    </Container>
   );
 }

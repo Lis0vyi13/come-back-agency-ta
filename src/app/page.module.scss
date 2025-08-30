@@ -1,0 +1,25 @@
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+.dashboardBlock {
+  border-radius: 20px;
+  box-shadow: 1px 1px 20px rgba(0, 0, 0, 0.1);
+  padding: 36px;
+  background: #fff;
+
+  & .header {
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+}
+
+.addButton {
+  @media (max-width: 600px) {
+    width: 100%;
+  }
+}
