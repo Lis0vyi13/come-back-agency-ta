@@ -1,7 +1,7 @@
 "use client";
 
 import theme from "@/lib/theme";
-import { AppStore, store } from "@/store/store";
+import { AppStore, store } from "@/store";
 import { ThemeProvider } from "@mui/material";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
 import { useRef } from "react";
