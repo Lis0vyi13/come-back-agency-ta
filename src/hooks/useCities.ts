@@ -66,7 +66,6 @@ export const useCities = () => {
     setLoadingCityId(id);
     try {
       const updatedCity = await trigger(city.name).unwrap();
-      console.log("Updated city:", updatedCity);
       setCities((prev) => prev.map((c) => (c.id === id ? { ...updatedCity, id } : c)));
     } catch {
       console.error(`Failed to refresh city with id ${id}`);
