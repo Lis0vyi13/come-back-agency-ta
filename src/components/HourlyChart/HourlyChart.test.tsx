@@ -13,7 +13,7 @@ jest.mock("recharts", () => {
   const OriginalModule = jest.requireActual("recharts");
   return {
     ...OriginalModule,
-    ResponsiveContainer: ({ children }: any) => <div>{children}</div>,
+    ResponsiveContainer: ({ children }: React.PropsWithChildren<object>) => <div>{children}</div>,
   };
 });
 

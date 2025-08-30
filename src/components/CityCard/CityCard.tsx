@@ -100,7 +100,12 @@ const CityCard = ({ city, onDelete, onRefresh, isLoading, index }: CardProps) =>
           </Link>
 
           <CardActions className={styles.cardActions}>
-            <Button size="small" startIcon={!isLoading && <RefreshIcon />} onClick={handleRefresh}>
+            <Button
+              disabled={isLoading}
+              size="small"
+              startIcon={!isLoading && <RefreshIcon />}
+              onClick={handleRefresh}
+            >
               {isLoading ? <CircularProgress color="primary" size={20} /> : "Refresh"}
             </Button>
             <Button color="error" size="small" onClick={handleDelete}>

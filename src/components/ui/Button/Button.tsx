@@ -1,4 +1,4 @@
-import { memo, ReactNode } from "react";
+import { ReactNode } from "react";
 import { Button as MuiButton, ButtonProps } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
@@ -25,7 +25,7 @@ interface CustomButtonProps extends ButtonProps {
   endIcon?: ReactNode;
 }
 
-const Button = memo(({ startIcon, endIcon, children, ...props }: CustomButtonProps) => {
+const Button = ({ startIcon, endIcon, children, ...props }: CustomButtonProps) => {
   return (
     <CustomButton
       variant="contained"
@@ -37,6 +37,6 @@ const Button = memo(({ startIcon, endIcon, children, ...props }: CustomButtonPro
       {children}
     </CustomButton>
   );
-});
+};
 
 export default Button;

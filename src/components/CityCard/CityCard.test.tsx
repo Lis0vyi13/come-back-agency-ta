@@ -2,11 +2,12 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import CityCard from "./CityCard";
 import "@testing-library/jest-dom";
 import type { City } from "@/types/city.types";
+import { JSX } from "@emotion/react/jsx-runtime";
 
 jest.mock("next/image", () => ({
   __esModule: true,
-  default: (props: any) => {
-    return <img {...props} />;
+  default: (props: JSX.IntrinsicElements["img"]) => {
+    return <img alt={props.alt || "image"} {...props} />;
   },
 }));
 
@@ -69,5 +70,7 @@ describe("CityCard", () => {
 
     const refreshButton = screen.getAllByRole("button")[0];
     expect(refreshButton).toBeInTheDocument();
+
+    expect(refreshButton).toBeDisabled();
   });
 });
