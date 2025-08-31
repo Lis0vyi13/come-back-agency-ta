@@ -40,6 +40,8 @@ export default function HomePage() {
     </Grid>
   ));
 
+  const hasCities = cities.length > 0;
+
   return (
     <Container component="section" maxWidth="md" className={styles.container}>
       <Box className={styles.dashboardBlock}>
@@ -59,13 +61,15 @@ export default function HomePage() {
             </Box>
           </Grid>
 
-          <Input
-            onChange={(e) => handleFindCity(e.target.value)}
-            size="large"
-            startAdornment={<Search />}
-            placeholder="Search..."
-            fullWidth
-          />
+          {hasCities && (
+            <Input
+              onChange={(e) => handleFindCity(e.target.value)}
+              size="large"
+              startAdornment={<Search />}
+              placeholder="Search..."
+              fullWidth
+            />
+          )}
         </Box>
 
         <Grid container spacing={3}>
@@ -74,7 +78,7 @@ export default function HomePage() {
           {!isLoadingInitial && filteredCities.length === 0 && (
             <Grid size={{ xs: 12 }}>
               <Typography variant="body1" color="text.secondary" align="center">
-                Cities not found 😢
+                {searchQuery.length > 0 ? "Cities not found 😢" : "Cities not added yet 😢"}
               </Typography>
             </Grid>
           )}

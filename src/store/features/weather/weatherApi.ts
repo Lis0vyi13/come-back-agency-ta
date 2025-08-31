@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { City, CitySuggestion, CitySuggestionResponse } from "@/types/city.types";
+import type { City, CitySuggestion } from "@/types/city.types";
 import type { HourlyForecastResponse, OpenWeatherResponse } from "@/types/weather.types";
 
 const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
@@ -14,32 +14,37 @@ export const weatherApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: BASE_URL, fetchFn }),
   endpoints: (builder) => ({
     getCityWeather: builder.query<City, string>({
-      query: (cityName: string) => `${DATA}/weather?q=${cityName}&appid=${API_KEY}&units=metric`,
-      transformResponse: (response: OpenWeatherResponse): City => ({
-        id: response.id,
-        name: response.name,
-        temp: Math.round(response.main.temp),
-        condition: response.weather[0].description,
-        icon: response.weather[0].icon,
-        humidity: response.main.humidity,
-        windSpeed: response.wind.speed,
-        pressure: response.main.pressure,
+      query: (cityName) =>
+        `${DATA}/weather?q=${encodeURIComponent(cityName)}&appid=${API_KEY}&units=metric`,
+      transformResponse: (res: OpenWeatherResponse): City => ({
+        id: res.id,
+        name: res.name,
+        temp: Math.round(res.main.temp),
+        condition: res.weather[0].description,
+        icon: res.weather[0].icon,
+        humidity: res.main.humidity,
+        windSpeed: res.wind.speed,
+        pressure: res.main.pressure,
       }),
     }),
+
     getCityHourlyForecast: builder.query<HourlyForecastResponse, string>({
-      query: (cityName) => `${DATA}/forecast?q=${cityName}&appid=${API_KEY}&units=metric`,
+      query: (cityName) =>
+        `${DATA}/forecast?q=${encodeURIComponent(cityName)}&appid=${API_KEY}&units=metric`,
     }),
-    searchCities: builder.query<CitySuggestionResponse[], string>({
-      query: (cityName) => `${GEO}/direct?q=${cityName}&limit=5&appid=${API_KEY}`,
-      transformResponse: (response: CitySuggestion[]): CitySuggestionResponse[] => {
+
+    searchCities: builder.query<{ name: string; country: string }[], string>({
+      query: (cityName) =>
+        `${GEO}/direct?q=${encodeURIComponent(cityName)}&limit=5&appid=${API_KEY}`,
+      transformResponse: (res: CitySuggestion[]) => {
         const seen = new Set<string>();
-        return response
-          .map((city) => ({
-            name: city.name,
-            country: city.country,
+        return res
+          .map((c) => ({
+            name: c.name,
+            country: c.country,
           }))
-          .filter((city) => {
-            const key = `${city.name},${city.country}`;
+          .filter((c) => {
+            const key = `${c.name}, ${c.country}`;
             if (seen.has(key)) return false;
             seen.add(key);
             return true;

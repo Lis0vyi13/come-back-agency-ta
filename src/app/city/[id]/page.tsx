@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { Container, Typography, Box, Grid, Paper } from "@mui/material";
-import { HourlyChart } from "@/components/HourlyChart";
+import { type ChartDataItem, HourlyChart } from "@/components/HourlyChart";
 
 import type { HourlyForecastItem } from "@/types/weather.types";
 import type { City } from "@/types/city.types";
@@ -25,19 +25,25 @@ const CityDetailsPage = async ({ params }: Props) => {
   const forecastResult = await store.dispatch(
     weatherApi.endpoints.getCityHourlyForecast.initiate(id),
   );
+
   const forecast: HourlyForecastItem[] = forecastResult.data?.list || [];
 
-  const today = new Date().getDate();
-  const todayForecast = forecast.filter((item) => new Date(item.dt * 1000).getDate() === today);
-
-  const chartData = todayForecast.map((item) => {
-    const date = new Date(item.dt * 1000);
+  const chartData: ChartDataItem[] = forecast.map((item, index) => {
+    const [datePart, timePart] = item.dt_txt.split(" ");
+    const hours = timePart.split(":")[0];
     return {
-      time: date.getHours() + ":00",
+      time: `${hours}:00`,
       temp: item.main.temp,
-      date: date.toLocaleDateString(),
+      date: datePart.split("-").reverse().join("."),
+      _index: index,
     };
   });
+
+  const weatherStats = [
+    { label: "Humidity", value: `${cityWeather.humidity}%` },
+    { label: "Wind", value: `${cityWeather.windSpeed} m/s` },
+    { label: "Pressure", value: `${cityWeather.pressure} hPa` },
+  ];
 
   return (
     <Container maxWidth="md" className={styles.container}>
@@ -70,18 +76,12 @@ const CityDetailsPage = async ({ params }: Props) => {
           </Grid>
 
           <Grid container spacing={2} sx={{ mt: 2 }}>
-            <Grid sx={{ xs: 4 }}>
-              <Typography color="text.secondary">Humidity</Typography>
-              <Typography fontWeight="bold">{cityWeather.humidity}%</Typography>
-            </Grid>
-            <Grid sx={{ xs: 4 }}>
-              <Typography color="text.secondary">Wind</Typography>
-              <Typography fontWeight="bold">{cityWeather.windSpeed} m/s</Typography>
-            </Grid>
-            <Grid sx={{ xs: 4 }}>
-              <Typography color="text.secondary">Pressure</Typography>
-              <Typography fontWeight="bold">{cityWeather.pressure} hPa</Typography>
-            </Grid>
+            {weatherStats.map((stat) => (
+              <Grid key={stat.label} sx={{ xs: 4 }}>
+                <Typography color="text.secondary">{stat.label}</Typography>
+                <Typography fontWeight="bold">{stat.value}</Typography>
+              </Grid>
+            ))}
           </Grid>
         </Grid>
       </Paper>

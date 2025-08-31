@@ -19,7 +19,7 @@ const theme = createTheme({
           props: { size: "large" },
           style: {
             "& .MuiInputBase-root": {
-              height: 46,
+              height: 40,
               padding: "0 16px",
             },
             "& .MuiInputBase-input": {

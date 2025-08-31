@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -16,7 +16,7 @@ import { Button } from "../ui/Button";
 import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 import { useLazyGetCityWeatherQuery, useLazySearchCitiesQuery } from "@/store/features";
-import type { City } from "@/types/city.types";
+import type { City, CitySuggestionResponse } from "@/types/city.types";
 
 import styles from "./AddCityDialog.module.scss";
 
@@ -28,55 +28,74 @@ const AddCityDialog = ({ onAdd }: Props) => {
   const [open, setOpen] = useState(false);
   const [cityName, setCityName] = useState("");
   const [error, setError] = useState("");
+  const [searchResults, setSearchResults] = useState<CitySuggestionResponse[]>([]);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [triggerWeather, { isFetching: isFetchingWeather }] = useLazyGetCityWeatherQuery();
-  const [searchCities, { data: cities = [], isFetching: isFetchingCities }] =
-    useLazySearchCitiesQuery();
+  const [searchCities, { isFetching: isFetchingCities }] = useLazySearchCitiesQuery();
 
   useEffect(() => {
-    if (cityName.trim().length > 1) {
-      const timeout = setTimeout(async () => {
-        await searchCities(cityName).unwrap();
-      }, 400);
-      return () => clearTimeout(timeout);
+    if (cityName.trim().length < 2) {
+      setSearchResults([]);
+      return;
     }
+
+    const handler = setTimeout(() => {
+      searchCities(cityName)
+        .unwrap()
+        .then((res) => {
+          const result = res.map((c) => ({ name: c.name, country: c.country }));
+
+          setSearchResults(result);
+        })
+        .catch(() => setSearchResults([]));
+    }, 400);
+
+    return () => clearTimeout(handler);
   }, [cityName, searchCities]);
 
   useEffect(() => {
     if (open && inputRef.current) {
-      const timer = setTimeout(() => {
-        inputRef.current?.focus();
-      }, 100);
+      const timer = setTimeout(() => inputRef.current?.focus(), 100);
       return () => clearTimeout(timer);
     }
   }, [open]);
 
-  const handleSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
+  const handleClose = useCallback(() => {
+    setOpen(false);
+    setCityName("");
     setError("");
-    if (!cityName.trim()) {
-      setError("Please enter a city name");
-      return;
-    }
+    setSearchResults([]);
+  }, []);
 
-    try {
-      const result = await triggerWeather(cityName).unwrap();
-      if (result) {
-        onAdd(result);
-        setCityName("");
-        setOpen(false);
+  const handleSubmit = useCallback(
+    async (e?: React.FormEvent) => {
+      e?.preventDefault();
+      setError("");
+
+      if (!cityName.trim()) {
+        setError("Please enter a city name");
+        return;
       }
-    } catch (err) {
-      const error = err as FetchBaseQueryError;
-      setError(
-        "status" in error && error.status === 404
-          ? "City not found"
-          : "An error occurred. Please try again.",
-      );
-    }
-  };
+
+      try {
+        const result = await triggerWeather(cityName).unwrap();
+        if (result) {
+          onAdd(result);
+          handleClose();
+        }
+      } catch (err) {
+        const fetchError = err as FetchBaseQueryError;
+        setError(
+          "status" in fetchError && fetchError.status === 404
+            ? "City not found"
+            : "An error occurred. Please try again.",
+        );
+      }
+    },
+    [cityName, onAdd, triggerWeather, handleClose],
+  );
 
   return (
     <>
@@ -84,7 +103,19 @@ const AddCityDialog = ({ onAdd }: Props) => {
         Add city
       </Button>
 
-      <Dialog disableRestoreFocus open={open} onClose={() => setOpen(false)}>
+      <Dialog
+        disableRestoreFocus
+        open={open}
+        onClose={handleClose}
+        slotProps={{
+          paper: {
+            sx: {
+              width: { xs: "calc(100% - 24px)", sm: "400px" },
+              borderRadius: 2,
+            },
+          },
+        }}
+      >
         <DialogTitle>New city</DialogTitle>
 
         <form onSubmit={handleSubmit}>
@@ -93,8 +124,9 @@ const AddCityDialog = ({ onAdd }: Props) => {
               freeSolo
               fullWidth
               loading={isFetchingCities}
-              options={cities.map((c) => c.name + (c.country ? `, ${c.country}` : ""))}
+              options={searchResults.map((c) => `${c.name}, ${c.country}`)}
               onInputChange={(_, value) => setCityName(value)}
+              filterOptions={(options) => options}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -128,8 +160,9 @@ const AddCityDialog = ({ onAdd }: Props) => {
               </Typography>
             )}
           </DialogContent>
+
           <DialogActions className={styles.dialogActions}>
-            <Button onClick={() => setOpen(false)}>Cancel</Button>
+            <Button onClick={handleClose}>Cancel</Button>
             <Button color="primary" type="submit" variant="contained" disabled={isFetchingWeather}>
               {isFetchingWeather ? "Loading..." : "Add"}
             </Button>

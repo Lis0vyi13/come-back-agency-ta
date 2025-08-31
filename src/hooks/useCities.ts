@@ -26,14 +26,9 @@ export const useCities = () => {
           }
         }),
       ).then((results) => {
-        const uniqueCities = results
-          .filter((city): city is City => city !== null)
-          .filter(
-            (city, index, self) =>
-              index === self.findIndex((c) => c.name.toLowerCase() === city.name.toLowerCase()),
-          );
+        const validCities = results.filter((city): city is City => city !== null);
 
-        setCities(uniqueCities);
+        setCities(validCities);
         setIsLoadingInitial(false);
       });
     } else {
