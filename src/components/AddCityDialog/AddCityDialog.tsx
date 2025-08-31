@@ -45,7 +45,7 @@ const AddCityDialog = ({ onAdd }: Props) => {
       searchCities(cityName)
         .unwrap()
         .then((res) => {
-          const result = res.map((c) => ({ name: c.name, country: c.country }));
+          const result = res.map((c) => ({ name: c.name, state: c.state }));
 
           setSearchResults(result);
         })
@@ -124,7 +124,7 @@ const AddCityDialog = ({ onAdd }: Props) => {
               freeSolo
               fullWidth
               loading={isFetchingCities}
-              options={searchResults.map((c) => `${c.name}, ${c.country}`)}
+              options={searchResults.map((c) => `${c.name}, ${c.state || ""}`)}
               onInputChange={(_, value) => setCityName(value)}
               filterOptions={(options) => options}
               renderInput={(params) => (

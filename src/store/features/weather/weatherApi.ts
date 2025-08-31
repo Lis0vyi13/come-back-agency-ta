@@ -33,7 +33,7 @@ export const weatherApi = createApi({
         `${DATA}/forecast?q=${encodeURIComponent(cityName)}&appid=${API_KEY}&units=metric`,
     }),
 
-    searchCities: builder.query<{ name: string; country: string }[], string>({
+    searchCities: builder.query<{ name: string; state: string }[], string>({
       query: (cityName) =>
         `${GEO}/direct?q=${encodeURIComponent(cityName)}&limit=5&appid=${API_KEY}`,
       transformResponse: (res: CitySuggestion[]) => {
@@ -41,10 +41,10 @@ export const weatherApi = createApi({
         return res
           .map((c) => ({
             name: c.name,
-            country: c.country,
+            state: c.state,
           }))
           .filter((c) => {
-            const key = `${c.name}, ${c.country}`;
+            const key = `${c.name}, ${c.state}`;
             if (seen.has(key)) return false;
             seen.add(key);
             return true;

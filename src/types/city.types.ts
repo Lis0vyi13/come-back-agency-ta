@@ -15,10 +15,10 @@ export type CitySuggestion = {
   lat: number;
   lon: number;
   country: string;
-  state?: string;
+  state: string;
 };
 
 export type CitySuggestionResponse = {
   name: string;
-  country: string;
+  state: string;
 };

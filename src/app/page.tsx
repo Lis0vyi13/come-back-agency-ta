@@ -78,7 +78,7 @@ export default function HomePage() {
           {!isLoadingInitial && filteredCities.length === 0 && (
             <Grid size={{ xs: 12 }}>
               <Typography variant="body1" color="text.secondary" align="center">
-                {searchQuery.length > 0 ? "Cities not found 😢" : "Cities not added yet 😢"}
+                {searchQuery.length > 0 ? "Cities not found" : "Cities not added yet"}
               </Typography>
             </Grid>
           )}

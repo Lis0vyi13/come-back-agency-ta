@@ -8,6 +8,7 @@ import { weatherApi } from "@/store/features";
 import { store as createStore } from "@/store";
 
 import styles from "./CityDetailsPage.module.scss";
+import { BackButton } from "@/components/ui/BackButton";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -47,6 +48,9 @@ const CityDetailsPage = async ({ params }: Props) => {
 
   return (
     <Container maxWidth="md" className={styles.container}>
+      <Box sx={{ mb: 2 }}>
+        <BackButton />
+      </Box>
       <Paper className={styles.paper}>
         <Grid container spacing={2} flexDirection="column">
           <Grid sx={{ xs: 12 }}>
@@ -90,7 +94,7 @@ const CityDetailsPage = async ({ params }: Props) => {
         <HourlyChart data={chartData} loading={false} />
       ) : (
         <Typography sx={{ mt: 3 }} color="text.secondary">
-          No forecast data available 😢
+          No forecast data available
         </Typography>
       )}
     </Container>
