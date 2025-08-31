@@ -27,6 +27,8 @@ interface HourlyChartProps {
 }
 
 const HourlyChart = ({ data, loading }: HourlyChartProps) => {
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   if (loading) {
     return (
       <Box className={styles.loaderBlock}>
@@ -44,7 +46,6 @@ const HourlyChart = ({ data, loading }: HourlyChartProps) => {
   }
 
   const chartWidth = Math.max(data.length * 10, 600);
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   return (
     <Paper className={styles.chartPaper}>
