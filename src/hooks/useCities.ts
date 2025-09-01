@@ -43,7 +43,7 @@ export const useCities = () => {
 
   const addCity = (city: City) => {
     setCities((prev) => {
-      if (prev.some((c) => c.name.toLowerCase() === city.name.toLowerCase())) {
+      if (prev.some((c) => c.id === city.id)) {
         return prev;
       }
       return [...prev, city];

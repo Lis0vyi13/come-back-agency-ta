@@ -10,9 +10,9 @@ import {
   CartesianGrid,
   ResponsiveContainer,
 } from "recharts";
+import theme from "@/lib/theme";
 
 import styles from "./HourlyChart.module.scss";
-import theme from "@/lib/theme";
 
 export interface ChartDataItem {
   time: string;
